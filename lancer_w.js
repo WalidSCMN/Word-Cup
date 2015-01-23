@@ -1,5 +1,3 @@
-// TAPEZ LE CODE ICI
-
 var stage;
 var text;
 var shape, oldX, oldY, textX, textY, moveListener;
@@ -109,7 +107,7 @@ function launchGame()
 
 }
 function lancer(){
-	text = new createjs.Text("ABDUCTION", "24px Arial");
+	text = new createjs.Text("ABDUCTION", "34px Arial");
 	text.textBaseline = "alphabetic";
 	var tmp = Math.random()*2;
 	if (tmp < 1){
@@ -128,6 +126,7 @@ function lancer(){
 function mainTick()
 {
 	if(text.y > 700){
+		stage.removeChild(text);
 		tmp = lancer();
 	}
 	if(tmp < 1){
