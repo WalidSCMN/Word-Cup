@@ -1,28 +1,36 @@
+// TAPEZ LE CODE ICI
+
 var stage;
-var text;
-var shape, oldX, oldY, textX, textY, moveListener;
+
+var img_fond = new Image();
+var preloadCount =0;
+var PRELOADTOTAL =1;
+
+var word = new Array();
+word = ["ABDUCTION", "ACROSOMIQUE", "OESTRUS", "TRIQUETRUM", "ZYGOTE", "ACHIRAL", "CHONDROBLASTE", "DIGESTIVE", "RADIOINDUITE", "VESTIBULAIRE"];
+var word2 = new Array(); 
+word2= ["TECHNOLOGIE", "TABLE", "CITRON", "ETABLISSEMENT", "SOURIS", "ORDINATEUR", "DEMOCRATIE", "TRAIN", "VOITURE", "ECHARPE"];
+var texte;
+var i = 0;
 var vx = 10;
 var vy = 10;
 var ax = 0;
 var ay = 1;
-var tmp;
-var img_fond = new Image();
-var preloadCount =0;
-var PRELOADTOTAL =1;
-var touchText = false;
-var temps = 60;
+
+var shape, oldX, oldY, moveListener;
+var textX, textY = 0;
+var touchText;
+
+var temps = 120;
 var tempsTexte;
+var gameOver;
+var gameTimer;
+var tmp;
+var bool;
 
+var j = 0;
 
-/*function startGame()
-{
-	var stage = new createjs.Stage(document.getElementById("gameCanvas"));
-	var text = new createjs.Text("COIN COIN","36px Arial","#777777");
-	stage.addChild(text);
-	text.x = 360;
-	text.y = 200;
-	stage.update();
-}*/
+gameTimer = setInterval(updateTime, 1000);
 
 function startGame(){preloadAssets();}
 
@@ -44,38 +52,23 @@ function launchGame()
 	stage = new createjs.Stage("gameCanvas");
 	stage.enableDOMEvents(true);
 	
-	/*text = new createjs.Text("ABDUCTION", "24px Arial");
-	text.textBaseline = "alphabetic";
-	text.x = 800;
-	text.y = 600;
-	vy = -((Math.random()*10)+20);*/
 	tmp = lancer();
 	
-	//active lorsque la souris est sur un éléments 
-	//(sans presser avec mise à jour tt les 30sec)
-	stage.enableMouseOver(30);
+	//active lorsque la souris est sur un Ã©lÃ©ments 
+	//(sans presser avec mise Ã  jour tt les 30sec)
+	stage.enableMouseOver(50);
 	
 	//Objet graphique pour le tracer du trait
 	shape = new createjs.Shape();
-
-	stage.addChild(shape, text);
-	
-	//si on fait un click de souris
+	stage.addChild(shape, texte);
+		//si on fait un click de souris
 	stage.on("stagemousedown", function(event) {
-	//on écoute les événements de la souris (avec bouton pressé)
+	//on Ã©coute les Ã©vÃ©nements de la souris (avec bouton pressÃ©)
 	moveListener = stage.on("stagemousemove", function(evt) {
-				//on voit si la souris passe sur le texte
-				text.on("mouseover", function(e) {
-				if (e.type == "mouseover") { 
-				//si c'est le cas on enregistre la position x et y
-					touchText = true;
-					textX = e.stageX;
-					textY = e.stageY;
-					}})
-				//tracer du trait de oldX à oldY
+				//tracer du trait de oldX Ã  oldY
 				if (oldX) {
-					shape.graphics.beginLinearGradientStroke(["#ECECEC","#FFF"], [0, 1], oldX, oldY, evt.stageX, evt.stageY)
-					.setStrokeStyle(4, "round")
+					shape.graphics.beginLinearGradientStroke(["#C8C8C8","#DCDCDC"], [0, 1], oldX, oldY, evt.stageX, evt.stageY)
+					.setStrokeStyle(2, "round")
 					.moveTo(oldX, oldY)
 					.lineTo(evt.stageX, evt.stageY);
 					stage.update();
@@ -83,62 +76,96 @@ function launchGame()
 				//on enregistre les nouvelles pos du trait
 				oldX = evt.stageX;
 				oldY = evt.stageY;
-			});
+				//on voit si la souris passe sur le texte
+				texte.addEventListener("mouseover", function(e) {
+				//si c'est le cas on enregistre la position x et y
+					if (moveListener) {
+					touchText = true;
+					textX = e.stageX;
+					textY = e.stageY;
+					j = j+1;}
+					});
+			})
+		})
+	
+
+		//cas oÃ¹ on relache le click de souris
+		stage.on("stagemouseup", function (evt) {
+			//on desactive l'Ã©coute mouse move et effacer l'ancien trait.
+			if (touchText){ 
+				alert(textX+" , "+textY);
+				touchText = false;}
+				
+			stage.off("stagemousemove", moveListener);
+			shape.graphics.clear();
+			oldX = oldY = 0;
 		})
 		
-		//cas où on relache le click de souris
-		stage.on("stagemouseup", function (evt) {
-			//si moveListener true, 
-			//on desactive l'écoute mouse move et effacer l'ancien trait.
-			if (moveListener){
-				if (touchText){ 
-					touchText = false;
-					alert ("objet coupé");}
-				stage.off("stagemousemove", moveListener);
-				shape.graphics.clear();
-				oldX = oldY = 0;
-			}
-			})
-	tempsTexte = new createjs.Text("Temps: 60", "24px Arial", "#000000");
-	tempsTexte.x = 8; tempsTexte.y = 600;
+	tempsTexte = new createjs.Text("Temps: "+temps.toString(), "24px Arial", "#000000");
+	tempsTexte.x = 8; tempsTexte.y = 0;
 	stage.addChild(tempsTexte);
+	
 	createjs.Ticker.setFPS(30);
-	createjs.Ticker.addEventListener("tick",mainTick);
-
+	createjs.Ticker.addEventListener("tick", mainTick);
 }
-function lancer(){
-	text = new createjs.Text("ABDUCTION", "34px Arial");
-	text.textBaseline = "alphabetic";
-	var tmp = Math.random()*2;
+function updateTime () {
+	temps--;
+	if (temps == 0) { 
+		tempsTexte.text = "Temps: "+temps;
+		gameOver = new createjs.Text("TerminÃ© !!!", "35px Arial", "#000000" );
+		gameOver.x = 250; gameOver.y = 100;
+		stage.addChild(gameOver);
+		clearInterval(gameTimer);
+		temps = 120;
+		//verfier les points du joueur: si ok gameLevel() sinon menuTexte
+		}
+	else {	
+		tempsTexte.text = "Temps: "+temps;
+		
+		}
+}
+
+function lancer()
+{
+	
+	bool = (Math.random() <= .25);
+	if (bool) texte = new createjs.Text(word2[i], "24px Arial");
+	else texte = new createjs.Text(word[i], "24px Arial");	
+	texte.textBaseline = "alphabetic";
+	tmp = Math.random()*2;
 	if (tmp < 1){
-		text.x = 0;
-		text.y = 600;
-		vy = -((Math.random()*10)+20);
-	}else{
-		text.x = 800;
-		text.y = 600;
+		texte.x = 0;
+		texte.y = 600;
 		vy = -((Math.random()*10)+20);
 	}
-	stage.addChild(text);
+	else {
+		texte.x = 800;
+		texte.y = 600;
+		vy = -((Math.random()*10)+20);
+	}
+	stage.addChild(texte);
+	i = i+1;
+	if (i>= word.length) i = 0;
 	return tmp;
 }
-
 function mainTick()
 {
-	if(text.y > 700){
-		stage.removeChild(text);
-		tmp = lancer();
+	if(texte.y > 700){
+	stage.removeChild(text);
+	tmp = lancer();
 	}
 	if(tmp < 1){
-		text.x = text.x + vx;
-		text.y = text.y + vy;
+		texte.x = texte.x + vx;
+		texte.y = texte.y + vy;
 		vx = vx + ax;
 		vy = vy + ay;
-	}else{
-		text.x = text.x - vx;
-		text.y = text.y + vy;
+	}
+	else{
+		texte.x = texte.x - vx;
+		texte.y = texte.y + vy;
 		vx = vx - ax;
 		vy = vy + ay;
 	}
-	stage.update();
+		
+stage.update();
 }
