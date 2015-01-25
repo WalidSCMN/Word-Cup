@@ -50,13 +50,13 @@ function preloadUpdate()
 function launchGame()
 {
 	stage = new createjs.Stage("gameCanvas");
-	stage.enableDOMEvents(true);
+	//stage.enableDOMEvents(true);
 	
 	tmp = lancer();
 	
 	//active lorsque la souris est sur un éléments 
 	//(sans presser avec mise à jour tt les 30sec)
-	stage.enableMouseOver(50);
+	stage.enableMouseOver(20);
 	
 	//Objet graphique pour le tracer du trait
 	shape = new createjs.Shape();
@@ -77,14 +77,16 @@ function launchGame()
 				oldX = evt.stageX;
 				oldY = evt.stageY;
 				//on voit si la souris passe sur le texte
-				texte.addEventListener("mouseover", function(e) {
+				//texte.addEventListener("mouseover", function(e) {
 				//si c'est le cas on enregistre la position x et y
-					if (moveListener) {
-					touchText = true;
-					textX = e.stageX;
-					textY = e.stageY;
-					j = j+1;}
-					});
+				//	if (moveListener) {
+					//touchText = true;
+					//textX = e.stageX;
+					//textY = e.stageY;
+					//j = j+1;}
+					//});
+				var pt = texte.globalToLocal(stage.mouseX, stage.mouseY);
+				if (texte.hitTest(pt.x, pt.y)) {touchText = true;}
 			})
 		})
 	
@@ -93,7 +95,7 @@ function launchGame()
 		stage.on("stagemouseup", function (evt) {
 			//on desactive l'écoute mouse move et effacer l'ancien trait.
 			if (touchText){ 
-				alert(textX+" , "+textY);
+				alert("objet coupé");
 				touchText = false;}
 				
 			stage.off("stagemousemove", moveListener);
