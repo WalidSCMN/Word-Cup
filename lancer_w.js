@@ -151,7 +151,7 @@ function lancer()
 function mainTick()
 {
 	if(texte.y > 700){
-	stage.removeChild(text);
+	stage.removeChild(texte);
 	tmp = lancer();
 	}
 	if(tmp < 1){
